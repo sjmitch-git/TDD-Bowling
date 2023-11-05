@@ -1,3 +1,5 @@
-import { add } from './calc';
+import { bowling } from "./bowling";
 
-console.log(`2 plus 2 is ${add(2, 2)}`);
+console.log(
+  `bowling("X X X X X X X X X X X X") should return 300 - ${bowling("X X X X X X X X X X X X")}`
+);

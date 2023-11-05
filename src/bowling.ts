@@ -1,12 +1,54 @@
-// A game consists of ten frames, which start with a full rack of ten pins.
-// In each frame, you have two deliveries of your ball, in which to knock down as many of the ten pins as you can.
+export const bowling = (rolls: string): number => {
+  const rollsArray = rolls.split(" ");
+  let score = 0;
 
-// If you knock down all the pins on your first ball, it is called a strike. The score doesn't get added on straight away because for a strike, you get the values of your next two balls as a bonus. For example, if you score a strike in the first frame, then an 7 and 1 in the second frame, you would score 18 (10+7+1) for the first frame, and 8 for the second frame, making a total of 26 after two frames.
+  for (let i = 0; i < rollsArray.length; i++) {
+    const currentRoll = rollsArray[i];
 
-// If you knock down some of the pins on the first ball, and knocked down the remainder of the pins in the second ball, it is known as a spare. Again, the score doesn't get added on straight away because for a spare, you get the values of your next ball as a bonus. For example, you if score a spare in the first frame, say an 6 and a 4, then got an 8 and a 1 in the second frame, you would score 18 (6+4+8) for the first frame, and 9 for the second frame, making a total of 27 after two frames.
+    if (currentRoll === "X") {
+      score += 10 + getStrikeBonus(rollsArray, i);
+    } else if (currentRoll.includes("/")) {
+      const nextRoll = rollsArray[i + 1] || "";
+      score += 10 + getSparesBonus(currentRoll, nextRoll);
+    } else {
+      score += getFrameScore(currentRoll);
+    }
+  }
 
-// When it comes to the final frame, it is slightly different. In the final frame, you get bonus balls if you strike or spare, to a maximum of three deliveries. If you strike in the first delivery you have the opportunity to strike in the remaining two and have three deliveries in total. If you scored strikes in each of your final three deliveries, the score for the final frame would be 30 (10+10+10). If you spare the final frame, you get the third delivery as a bonus. So, a spare, 9 and 1, followed by a strike would equal 20 (9+1+10).
+  return score;
+};
 
-export function bowling(rolls: string): number {
-  return 0;
-}
+const getFrameScore = (roll: string): number => {
+  let frameScore = 0;
+  for (let j = 0; j < roll.length; j++) {
+    frameScore += rollValue(roll[j]);
+  }
+  return frameScore;
+};
+
+const getStrikeBonus = (rolls: string[], index: number): number => {
+  let bonus = 0;
+  const nextRoll = rolls[index + 1] || "";
+  const nextNextRoll = rolls[index + 2] || "";
+
+  if (nextRoll === "X" && nextNextRoll === "X") {
+    bonus += 20; // 12 strikes in a row, count the next two rolls' total score
+  } else if (nextRoll === "X") {
+    bonus += 10 + rollValue(nextNextRoll[0] || "0") + rollValue(nextNextRoll[1] || "0");
+  } else {
+    bonus += rollValue(nextRoll[0] || "0") + rollValue(nextRoll[1] || "0");
+  }
+
+  return bonus;
+};
+
+const getSparesBonus = (currentRoll: string, nextRoll: string): number => {
+  return 10 - rollValue(currentRoll[0]) + rollValue(nextRoll[0]);
+};
+
+const rollValue = (roll: string): number => {
+  if (roll === "X") return 10;
+  if (roll === "-") return 0;
+  if (roll === "/") return 10;
+  return parseInt(roll) || 0;
+};
